@@ -1,0 +1,67 @@
+public class ToDo {
+    private Long id;
+    private String title;
+    private String description;
+    private boolean completed;
+
+    // Constructors, getters, setters, and other methods...
+}
+public interface ToDoDao {
+    ToDo findById(Long id);
+    List<ToDo> findAll();
+    void save(ToDo toDo);
+    void update(ToDo toDo);
+    void delete(Long id);
+}
+public class ToDoDaoImpl implements ToDoDao {
+    private Map<Long, ToDo> database = new HashMap<>();
+
+    @Override
+    public ToDo findById(Long id) {
+        return database.get(id);
+    }
+
+    @Override
+    public List<ToDo> findAll() {
+        return new ArrayList<>(database.values());
+    }
+
+    @Override
+    public void save(ToDo toDo) {
+        database.put(toDo.getId(), toDo);
+    }
+
+    @Override
+    public void update(ToDo toDo) {
+        if(database.containsKey(toDo.getId())) {
+            database.put(toDo.getId(), toDo);
+        } else {
+            throw new RuntimeException("ToDo not found!");
+        }
+    }
+
+    @Override
+    public void delete(Long id) {
+        database.remove(id);
+    }
+}
+public class ToDoServ {
+    public static void main(String[] args) {
+        ToDoDao toDoDao = new ToDoDaoImpl();
+
+        ToDo toDo = new ToDo(1L, "Buy groceries", "Milk, eggs, bread", false);
+        toDoDao.save(toDo);
+
+        List<ToDo> toDos = toDoDao.findAll();
+        for (ToDo t : toDos) {
+            System.out.println(t.getTitle());
+        }
+
+        ToDo toDoToUpdate = toDoDao.findById(1L);
+        toDoToUpdate.setCompleted(true);
+        toDoDao.update(toDoToUpdate);
+
+        ToDo toDoToDelete = toDoDao.findById(1L);
+        toDoDao.delete(toDoToDelete.getId());
+    }
+}
